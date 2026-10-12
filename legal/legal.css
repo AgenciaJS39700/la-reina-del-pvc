@@ -1,0 +1,7 @@
+.lnav{display:flex!important;margin-left:auto}
+.legal{background:var(--bg);padding:36px 0 64px}.wrap-s{width:min(780px,100% - 32px);margin:0 auto}
+.legal h1{font:700 clamp(1.7rem,5vw,2.4rem)/1.15 var(--disp);margin:14px 0 8px}.legal h2{font:700 1.2rem var(--disp);margin:28px 0 6px}
+.legal .lead{font-size:1.1rem;color:var(--mut);margin:0 0 4px}.legal .upd{font-size:.85rem;color:var(--mut);margin:0 0 18px}
+.legal p{margin:8px 0}.legal a{color:var(--gold);text-underline-offset:3px}.legal .back{text-decoration:none;font-weight:600;background:none;position:static;display:inline-block;padding:10px 0}
+.legal .note{margin-top:34px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.foot .fine a{color:var(--gold2)}.foot .fine a{display:inline-block;padding:12px 4px}.legal a{color:var(--goldt)}

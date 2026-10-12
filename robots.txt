@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://la-reina-del-pvc.agencia39700.workers.dev/sitemap.xml

@@ -18,10 +18,10 @@
   function card(it) {
     var c = el("article", "card");
     var open = el("button", "open"); open.type = "button"; open.setAttribute("aria-label", "Ver fotos y modelos de " + it.name);
-    var ph = el("div", "ph"); ph.appendChild(el("div", "fx " + it.tone));
+    var ph = el("div", "ph" + (it.cat === "accesorios" ? " contain" : "")); ph.appendChild(el("div", "fx " + it.tone));
     if (it.img) {
       var img = new Image(); img.alt = ""; img.loading = "lazy"; img.decoding = "async"; img.width = 560; img.height = 420;
-      img.onload = function () { ph.insertBefore(img, ph.firstChild); }; img.src = it.img;
+      var fx = ph.firstChild; img.onload = function () { fx.remove(); }; img.onerror = function () { img.remove(); }; img.src = it.img; ph.insertBefore(img, fx);
     }
     var pt = el("span", "price-tag", it.price == null ? "Consultar precio" : (it.unit === "desde" ? "Desde " : "") + cop(it.price));
     if (it.price != null && it.unit && it.unit !== "desde") pt.appendChild(el("small", null, " / " + it.unit));
@@ -94,7 +94,7 @@
     $("#vSpec").textContent = it.spec + (v && v.stock ? " · " + (v.stock === "agotado" ? "Agotado según catálogo" : v.stock + " unidades según catálogo") : "");
     $("#vDesc").textContent = it.desc;
     var box = $("#vVarsBox"), vars = $("#vVars"); vars.textContent = "";
-    if (it.variants) { box.hidden = false; it.variants.forEach(function (x, i) { vars.appendChild(varBtn(x, i, i === V.vi, function (k) { V.vi = k; V.gi = 0; paintViewer(); }, false)); }); } else box.hidden = true;
+    if (it.variants) { box.hidden = false; it.variants.forEach(function (x, i) { vars.appendChild(varBtn(x, i, i === V.vi, function (k) { V.vi = k; V.gi = 0; paintViewer(); }, true)); }); } else box.hidden = true;
     $("#vWa").href = wa("Hola, quiero cotizar: " + it.name + (v ? " (" + v.name + ")" : "") + " · " + it.spec + ".");
     var sb = $("#vSim"); sb.hidden = !(it.sim); $("#vCatalog").href = it.catalog;
   }
@@ -133,24 +133,25 @@
   function placeProp(id, wm, hm, x, z) {
     var e = $("#" + id), u = G.u, w = wm * u, h = hm * u;
     e.style.width = w + "px"; e.style.height = h + "px"; e.style.left = (x * u - w / 2) + "px"; e.style.top = (G.Hm * u / 2 - h) + "px";
-    e.style.transform = "translateZ(" + (z * u) + "px) rotateY(calc(var(--yaw) * -1deg))";
+    e.style.transform = "translateZ(" + (z * u) + "px) rotateY(calc(var(--yaw) * -1deg)) rotateX(calc(var(--pitch) * -1deg))";
   }
 
   function layout() {
     var ln = line(), sim = ln.sim, floor = !!sim.floor, r = stage.getBoundingClientRect();
     if (!r.width) return;
     var Wm = floor ? Math.max(S.fw + 1.2, 3.6) : S.W, Hm = S.H, Dm = floor ? Math.max(S.fd + 0.8, 3.4) : 3.2;
-    var P = Math.max(r.width, r.height) * 1.6, u = 120;
-    for (var i = 0; i < 5; i++) { var s = P / (P + Dm * u / 2); u = Math.min(0.9 * r.width / (Wm * s), 0.86 * r.height / (Hm * s)); }
+    var P = Math.max(r.width, r.height) * 1.6, u = 120, eW = Wm, eH = Hm;
+    if (floor) { var ya = 22 * Math.PI / 180, pa = Math.abs(S.tpitch) * Math.PI / 180; Hm = 1.5; eW = Wm * Math.cos(ya) + Dm * Math.sin(ya); eH = Hm * Math.cos(pa) + Dm * Math.sin(pa); }
+    for (var i = 0; i < 6; i++) { var s = P / (P + Dm * u / 2); u = Math.min((floor ? 0.86 : 0.9) * r.width / (eW * s), (floor ? 0.74 : 0.86) * r.height / (eH * s)); }
     G.u = u; G.Wm = Wm; G.Hm = Hm; G.Dm = Dm;
     scene.style.setProperty("--p", P + "px");
     room.style.setProperty("--w", Wm * u + "px"); room.style.setProperty("--h", Hm * u + "px"); room.style.setProperty("--d", Dm * u + "px"); room.style.setProperty("--u", u + "px");
     // muebles (billboards)
     var sw = Math.min(2.3, Wm * 0.7);
     placeProp("pSofa", sw, sw * 0.4, 0, -Dm / 2 + 0.55);
-    placeProp("pTable", Math.min(1.0, sw * 0.45), 0.42, 0, floor ? -0.1 : -Dm / 2 + 1.5);
-    placeProp("pPlant", 0.55, 1.45, -Wm / 2 + 0.45, -Dm / 2 + 0.4);
-    placeProp("pLamp", 0.34, 1.75, Wm / 2 - 0.4, -Dm / 2 + 0.45);
+    placeProp("pTable", Math.min(1.0, sw * 0.45), 0.42, 0, floor ? 0.25 : -Dm / 2 + 1.5);
+    placeProp("pPlant", floor ? 0.42 : 0.55, floor ? 1.15 : 1.45, -Wm / 2 + 0.45, -Dm / 2 + 0.4);
+    placeProp("pLamp", floor ? 0.26 : 0.34, floor ? 1.3 : 1.75, Wm / 2 - 0.4, -Dm / 2 + 0.45);
     paintSurface(); labels();
   }
 
@@ -244,7 +245,7 @@
   }
   function selectSim(id, vi, scroll) {
     S.id = id; S.vi = vi || 0; buildLines(); buildVars(); configControls();
-    var fl = !!line().sim.floor; S.tpitch = fl ? 14 : 2; if (S.idle) S.pitch = S.tpitch;
+    var fl = !!line().sim.floor; S.tyaw = fl ? -14 : -16; S.tpitch = fl ? -34 : 2; S.top = false; setViewBtns(fl); if (S.idle) S.pitch = S.tpitch;
     layout();
     if (scroll) $("#simulador").scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "start" });
   }
@@ -255,26 +256,30 @@
   Array.prototype.forEach.call(document.querySelectorAll("#modes .chip"), function (b) {
     b.addEventListener("click", function () { S.mode = b.getAttribute("data-m"); Array.prototype.forEach.call(document.querySelectorAll("#modes .chip"), function (x) { var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-checked", on ? "true" : "false"); }); layoutSoft(); });
   });
-  $("#vFront").addEventListener("click", function () { S.idle = false; S.tyaw = 0; S.tpitch = line().sim.floor ? 10 : 0; $("#vFront").classList.add("on"); $("#v3d").classList.remove("on"); kick(); });
-  $("#v3d").addEventListener("click", function () { S.idle = !REDUCED; S.tyaw = -16; S.tpitch = line().sim.floor ? 14 : 2; $("#v3d").classList.add("on"); $("#vFront").classList.remove("on"); kick(); });
+  function setViewBtns(fl) { $("#vFront").textContent = fl ? "Desde arriba" : "Vista frontal"; $("#v3d").textContent = "Vista 3D"; $("#v3d").classList.add("on"); $("#vFront").classList.remove("on"); }
+$("#vFront").addEventListener("click", function () { var fl = !!line().sim.floor; S.idle = false; S.tyaw = 0; S.tpitch = fl ? -62 : 0; $("#vFront").classList.add("on"); $("#v3d").classList.remove("on"); layout(); kick(); });
+$("#v3d").addEventListener("click", function () { var fl = !!line().sim.floor; S.idle = !REDUCED; S.tyaw = fl ? -14 : -16; S.tpitch = fl ? -34 : 2; $("#v3d").classList.add("on"); $("#vFront").classList.remove("on"); layout(); kick(); });
 
-  // giro con el puntero
+// giro con el puntero
   var drag = null;
   stage.addEventListener("pointerdown", function (e) { drag = { x: e.clientX, y: e.clientY, yaw: S.tyaw, pitch: S.tpitch }; S.idle = false; try { stage.setPointerCapture(e.pointerId); } catch (x) {} });
   stage.addEventListener("pointermove", function (e) {
-    if (!drag) return; S.tyaw = Math.max(-34, Math.min(34, drag.yaw + (e.clientX - drag.x) * 0.2)); S.tpitch = Math.max(-4, Math.min(16, drag.pitch - (e.clientY - drag.y) * 0.08)); kick();
+    if (!drag) return; S.tyaw = Math.max(-34, Math.min(34, drag.yaw + (e.clientX - drag.x) * 0.2)); var fl = !!line().sim.floor; S.tpitch = fl ? Math.max(-70, Math.min(-20, drag.pitch - (e.clientY - drag.y) * 0.2)) : Math.max(-4, Math.min(16, drag.pitch - (e.clientY - drag.y) * 0.08)); kick();
   });
   function end() { drag = null; } stage.addEventListener("pointerup", end); stage.addEventListener("pointercancel", end);
   stage.addEventListener("keydown", function (e) { if (e.key === "ArrowLeft") S.tyaw = Math.max(-34, S.tyaw - 6); else if (e.key === "ArrowRight") S.tyaw = Math.min(34, S.tyaw + 6); else return; S.idle = false; kick(); });
   stage.tabIndex = 0;
 
+  var lastT = 0;
   function frame(t) {
-    S.running = false; if (!S.vis) return;
+    S.running = false; if (!S.vis || document.hidden) return;
+    if (S.idle && t - lastT < 32) { kick(); return; } lastT = t; // ~30 fps en giro automático: menos CPU/batería
     if (S.idle) S.tyaw = -12 + 8 * Math.sin(t / 2600);
     S.yaw += (S.tyaw - S.yaw) * 0.12; S.pitch += (S.tpitch - S.pitch) * 0.12;
     room.style.setProperty("--yaw", S.yaw.toFixed(2)); room.style.setProperty("--pitch", S.pitch.toFixed(2));
     if (S.idle || Math.abs(S.tyaw - S.yaw) > 0.05 || Math.abs(S.tpitch - S.pitch) > 0.05) kick();
   }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) kick(); });
   function kick() { if (!S.running) { S.running = true; requestAnimationFrame(frame); } }
   if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { S.vis = es[0].isIntersecting; if (S.vis) kick(); }).observe(stage); else { S.vis = true; kick(); }
   var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(layout, 120); });

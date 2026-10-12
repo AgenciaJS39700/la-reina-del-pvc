@@ -199,3 +199,30 @@ details.refs .chips span{font-size:.8rem;background:#fff;border:1px solid var(--
 .v-info .vb .tg2{color:#fff}
 @media(min-width:860px){.v-in{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}.v-info{padding:30px 28px}.v-acts{flex-direction:row;flex-wrap:wrap}.v-media{padding:16px}}
 body.lock{overflow:hidden}
+.brand .logo{width:48px;height:48px;border-radius:50%;box-shadow:0 0 0 2px var(--gold),0 6px 16px -6px rgba(0,0,0,.6);display:block}
+.brand .logo.lg{width:96px;height:96px}
+.foot-grid{display:grid;gap:28px;grid-template-columns:1fr;padding-block:8px 18px}
+.foot-grid h3{font:600 .78rem system-ui;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin:0 0 10px}
+.foot-grid nav{display:flex;flex-direction:column;gap:2px}
+.foot-grid nav a{color:#e9dfc8;text-decoration:none;padding:7px 0;font-size:.95rem}
+.foot-grid nav a:hover,.foot-grid nav a:focus-visible{color:var(--gold2);text-decoration:underline}
+@media(min-width:760px){.foot-grid{grid-template-columns:1.4fr 1fr 1.4fr 1fr}}
+.ph.contain{background:#fff}.ph.contain img{object-fit:contain;padding:10px 6px 6px}.card:hover .ph.contain img{transform:scale(1.02)}
+.rug{border-radius:3px;outline:2px solid rgba(255,255,255,.18);outline-offset:-2px}
+.stage{contain:layout paint}.room{will-change:transform}.scene{contain:layout}
+@media (prefers-reduced-motion:reduce){.room{will-change:auto}}
+/* accesibilidad: contraste del dorado sobre fondo claro y áreas táctiles */
+:root{--goldt:#7d5a0e}
+.eyebrow{color:var(--goldt)}.hero .eyebrow,.sim-sec .eyebrow{color:var(--gold2)}
+.spec{color:var(--goldt)}.v-info .eyebrow,.v-info .spec{color:var(--goldt)}
+
+.chip,.tab{min-height:44px}.btn.sm{min-height:44px;display:inline-flex;align-items:center}
+.nav a{padding:10px 4px}
+input[type=range]{min-height:32px}
+.narrow{width:min(780px,100% - 32px);margin-inline:auto}
+.qa{border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;padding:0 16px}
+.qa summary{cursor:pointer;font-weight:600;padding:16px 28px 16px 0;list-style:none;position:relative;min-height:44px}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:1.4rem;color:var(--goldt)}
+.qa[open] summary::after{content:"–"}.qa p{margin:0 0 16px;color:var(--mut)}.qa a{color:var(--goldt)}
+.foot-grid nav a{padding:12px 0}.foot .fine a{display:inline-block;padding:10px 4px}
