@@ -122,7 +122,7 @@
 
   /* ------------------------------------------------------------ simulador */
   var SIMS = D.items.filter(function (i) { return i.sim; });
-  var S = { id: SIMS[0].id, vi: 0, mode: "full", W: 3.2, H: 2.5, fw: 2.4, fd: 3.0, yaw: -16, pitch: 2, tyaw: -16, tpitch: 2, idle: !REDUCED, running: false, vis: false };
+  var S = { id: SIMS[0].id, env: "sala", vi: 0, mode: "full", W: 3.2, H: 2.5, fw: 2.4, fd: 3.0, yaw: -16, pitch: 2, tyaw: -16, tpitch: 2, idle: !REDUCED, running: false, vis: false };
   var stage = $("#stage"), room = $("#room"), scene = $("#scene"), cover = $("#cover"), seams = $("#seams"), rug = $("#rug"), fBack = $("#fBack"), fFloor = $("#fFloor");
   var inW = $("#inW"), inH = $("#inH"), outW = $("#outW"), outH = $("#outH"), quote = $("#quote");
   var G = { u: 150 };
@@ -131,15 +131,92 @@
   function TABLE() { return '<svg viewBox="0 0 120 52" preserveAspectRatio="none"><rect x="0" y="6" width="120" height="9" rx="4" fill="#3c2f22"/><rect x="12" y="15" width="6" height="36" fill="#2b2118"/><rect x="102" y="15" width="6" height="36" fill="#2b2118"/><ellipse cx="42" cy="4" rx="12" ry="4" fill="#d9a93b"/><rect x="72" y="0" width="22" height="6" rx="2" fill="#e9e1d0"/></svg>'; }
   function PLANT() { return '<svg viewBox="0 0 80 170" preserveAspectRatio="none"><path d="M40 112C20 90 8 60 14 24c18 14 28 44 26 88z" fill="#4f7a49"/><path d="M40 112C60 86 74 56 66 18c-18 16-28 48-26 94z" fill="#5e8d56"/><path d="M40 112C34 80 38 44 40 6c8 34 8 70 0 106z" fill="#6a9b60"/><path d="M26 124h28l-5 44H31z" fill="#b5835a"/><rect x="24" y="118" width="32" height="9" rx="3" fill="#c79566"/></svg>'; }
   function LAMP() { return '<svg viewBox="0 0 60 200" preserveAspectRatio="none"><path d="M12 6h36l8 40H4z" fill="#f3e8cf"/><rect x="28" y="46" width="4" height="140" fill="#2f2a22"/><ellipse cx="30" cy="190" rx="16" ry="6" fill="#2f2a22"/></svg>'; }
-  $("#pSofa").innerHTML = SOFA(); $("#pTable").innerHTML = TABLE(); $("#pPlant").innerHTML = PLANT(); $("#pLamp").innerHTML = LAMP();
+  /* ---- ambientes: muebles dibujados en SVG (unidades en cm; el elemento se escala a metros) ---- */
+  var ENVS = {
+    sala: { name: "Sala", W: 3.2, H: 2.5, mode0: "full", modes: [["full", "Pared completa"], ["accent", "Pared de acento"], ["half", "Media pared"]] },
+    tv: { name: "Sala con TV", W: 3.6, H: 2.5, mode0: "accent", modes: [["accent", "Pared de la TV"], ["full", "Pared completa"], ["half", "Media pared"]] },
+    bano: { name: "Baño", W: 2.4, H: 2.4, mode0: "full", cls: "env-bano", hint: "En zonas con agua directa (ducha), confirma con tu asesor qué producto es el indicado.", modes: [["full", "Pared completa"], ["accent", "Pared de acento"], ["half", "Media pared"]] },
+    cocina: { name: "Cocina", W: 3.2, H: 2.5, mode0: "splash", cls: "env-cocina", hint: "Cerca del fuego o de zonas muy calientes, confirma con tu asesor qué producto es el indicado.", modes: [["splash", "Salpicadero"], ["full", "Pared completa"]] }
+  };
+  var FLAT = { tv: 1, mirror: 1, shelf: 1, uppers: 1, uppers2: 1, hood: 1, shower: 1 };
+  function rn(n) { return Math.round(n); }
+  function TV() { return '<svg viewBox="0 0 125 74" preserveAspectRatio="none"><defs><linearGradient id="tvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22344a"/><stop offset=".5" stop-color="#0c1118"/><stop offset="1" stop-color="#1b2230"/></linearGradient></defs><rect width="125" height="70" rx="2" fill="#09090b"/><rect x="1.5" y="1.5" width="122" height="67" fill="url(#tvg)"/><path d="M1.5 1.5h58L28 68.5H1.5z" fill="#fff" opacity=".06"/><rect x="50" y="70" width="25" height="4" rx="1.5" fill="#18181c"/></svg>'; }
+  function RACK(wm) {
+    var w = rn(wm * 100), n = Math.max(2, rn(w / 55)), sw = w / n, s = '<svg viewBox="0 0 ' + w + ' 45" preserveAspectRatio="none"><rect width="' + w + '" height="36" rx="2" fill="#9a6c43"/><rect width="' + w + '" height="3" fill="#b48457"/>';
+    for (var i = 0; i < n; i++) {
+      var x = i * sw;
+      if (i % 2 === 0) s += '<rect x="' + (x + 3) + '" y="6" width="' + (sw - 6) + '" height="27" rx="1" fill="#85583a"/><rect x="' + (x + sw / 2 - 6) + '" y="9" width="12" height="2" rx="1" fill="#d9b36a"/>';
+      else s += '<rect x="' + (x + 3) + '" y="6" width="' + (sw - 6) + '" height="27" rx="1" fill="#2e2118"/><rect x="' + (x + 8) + '" y="19" width="7" height="14" fill="#c9a36a"/><rect x="' + (x + 15) + '" y="16" width="6" height="17" fill="#6f8a73"/><rect x="' + (x + 21) + '" y="21" width="6" height="12" fill="#b9684f"/><path d="M' + (x + sw - 18) + ' 33c-6-4-6-12 0-16 6 4 6 12 0 16z" fill="#e9e1d0"/>';
+    }
+    return s + '<rect x="8" y="36" width="5" height="9" fill="#3a2a1c"/><rect x="' + (w - 13) + '" y="36" width="5" height="9" fill="#3a2a1c"/></svg>';
+  }
+  function TOILET() { return '<svg viewBox="0 0 40 78" preserveAspectRatio="none"><rect x="7" y="0" width="26" height="32" rx="4" fill="#f5f2ec"/><rect x="7" y="0" width="26" height="4" rx="2" fill="#e2ddd1"/><circle cx="20" cy="10" r="2.4" fill="#cfc8ba"/><path d="M4 34h32c0 14-3 24-9 28v10H13V62C7 58 4 48 4 34z" fill="#f8f6f1"/><path d="M4 34h32v4H4z" fill="#e4dfd3"/><rect x="13" y="72" width="14" height="6" fill="#e4dfd3"/></svg>'; }
+  function VANITY(wm) {
+    var w = rn(wm * 100), c = w / 2;
+    return '<svg viewBox="0 0 ' + w + ' 90" preserveAspectRatio="none"><rect x="' + (c - 1.5) + '" y="2" width="3" height="14" fill="#cfd2d6"/><rect x="' + (c - 1.5) + '" y="2" width="12" height="3" rx="1.5" fill="#cfd2d6"/><path d="M' + (c - 20) + ' 16h40c0 10-8 16-20 16s-20-6-20-16z" fill="#f7f5f0"/><rect x="' + (c - 21) + '" y="14" width="42" height="3" rx="1.5" fill="#fff"/><rect y="30" width="' + w + '" height="5" fill="#e8e3d8"/><rect x="1" y="35" width="' + (w - 2) + '" height="48" fill="#8d6a4a"/><rect x="4" y="38" width="' + (w / 2 - 5) + '" height="42" fill="#7b5a3d"/><rect x="' + (w / 2 + 1) + '" y="38" width="' + (w / 2 - 5) + '" height="42" fill="#7b5a3d"/><rect x="' + (w / 2 - 8) + '" y="42" width="6" height="2" fill="#d9b36a"/><rect x="' + (w / 2 + 2) + '" y="42" width="6" height="2" fill="#d9b36a"/><rect x="5" y="83" width="' + (w - 10) + '" height="7" fill="#33291f"/></svg>';
+  }
+  function MIRROR() { return '<svg viewBox="0 0 62 62" preserveAspectRatio="none"><defs><linearGradient id="mrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4f2f8"/><stop offset="1" stop-color="#9fc3d3"/></linearGradient></defs><circle cx="31" cy="31" r="29.5" fill="url(#mrg)" stroke="#d9b36a" stroke-width="2.5"/><path d="M14 22a20 20 0 0 1 14-10" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/></svg>'; }
+  function SHELF() { return '<svg viewBox="0 0 50 30" preserveAspectRatio="none"><rect y="25" width="50" height="3" rx="1" fill="#9a6c43"/><rect x="4" y="8" width="22" height="17" rx="2" fill="#c98f6b"/><rect x="4" y="14" width="22" height="1.5" fill="#e0b494"/><rect x="4" y="19" width="22" height="1.5" fill="#e0b494"/><rect x="35" y="16" width="9" height="9" rx="2" fill="#e9e1d0"/><path d="M39.5 16c-5-3-6-9-4-13 5 2 7 7 4 13zM39.5 16c5-3 6-9 4-13-5 2-7 7-4 13z" fill="#5e8d56"/></svg>'; }
+  function SHOWER() { return '<svg viewBox="0 0 85 200" preserveAspectRatio="none"><rect x="1" y="1" width="83" height="190" fill="#bfe1f0" fill-opacity=".16" stroke="#26262b" stroke-width="2.5"/><path d="M60 1v190" stroke="#26262b" stroke-width="1.5"/><rect x="53" y="95" width="2.6" height="30" rx="1.3" fill="#cfd2d6"/><path d="M10 1v22h16" stroke="#cfd2d6" stroke-width="3" fill="none"/><ellipse cx="32" cy="25" rx="10" ry="3" fill="#cfd2d6"/><path d="M26 30l-3 24M32 30v26M38 30l3 24" stroke="#9fd0e8" stroke-width="1.4" opacity=".5"/><rect y="190" width="85" height="10" fill="#e8e3d8"/></svg>'; }
+  function COUNTER(wm, sink) {
+    var w = rn(wm * 100), oy = sink ? 25 : 0, n = Math.max(1, rn(w / 50)), dw = (w - 2) / n, s = '<svg viewBox="0 0 ' + w + ' ' + (oy + 90) + '" preserveAspectRatio="none"><rect y="' + oy + '" width="' + w + '" height="4" fill="#35353a"/><rect y="' + oy + '" width="' + w + '" height="1" fill="#5a5a62"/><rect x="1" y="' + (oy + 4) + '" width="' + (w - 2) + '" height="82" fill="#a9784b"/>';
+    for (var i = 0; i < n; i++) s += '<rect x="' + (1 + i * dw + 1.5) + '" y="' + (oy + 8) + '" width="' + (dw - 3) + '" height="72" rx="1" fill="#b88858"/><rect x="' + (1 + i * dw + dw / 2 - 6) + '" y="' + (oy + 10) + '" width="12" height="2" rx="1" fill="#e2c27a"/>';
+    s += '<rect x="2" y="' + (oy + 86) + '" width="' + (w - 4) + '" height="4" fill="#2a221b"/>';
+    if (sink) { var c = w / 2; s += '<rect x="' + (c - 28) + '" y="' + (oy - 1) + '" width="56" height="5" fill="#c8ccd2"/><path d="M' + (c + 22) + ' ' + (oy - 1) + 'V8q0-5 6-5h8" stroke="#cfd2d6" stroke-width="3" fill="none"/>'; }
+    return s + '</svg>';
+  }
+  function STOVE() { return '<svg viewBox="0 0 60 115" preserveAspectRatio="none"><rect x="14" y="6" width="32" height="17" rx="2" fill="#b9bdc3"/><rect x="12" y="3" width="36" height="4" rx="2" fill="#9ea3aa"/><rect x="28" y="0" width="4" height="3" rx="1" fill="#2a2a2e"/><path d="M22 0c-3 3 3 5 0 8" stroke="#fff" stroke-width="1.2" fill="none" opacity=".35"/><rect x="2" y="23" width="56" height="3" fill="#1c1c1f"/><rect y="25" width="60" height="90" rx="2" fill="#d6d9de"/><rect y="25" width="60" height="14" fill="#b8bcc2"/><circle cx="9" cy="33" r="3" fill="#2a2a2e"/><circle cx="23" cy="33" r="3" fill="#2a2a2e"/><circle cx="37" cy="33" r="3" fill="#2a2a2e"/><circle cx="51" cy="33" r="3" fill="#2a2a2e"/><rect x="4" y="43" width="52" height="58" rx="2" fill="#b5b9bf"/><rect x="9" y="51" width="42" height="36" rx="2" fill="#17171a"/><path d="M9 51h20L16 87H9z" fill="#fff" opacity=".08"/><rect x="8" y="45" width="44" height="3" rx="1.5" fill="#e8eaee"/><rect x="4" y="103" width="52" height="10" fill="#a8acb2"/></svg>'; }
+  function HOOD(hm) { var h = rn(hm * 100); return '<svg viewBox="0 0 60 ' + h + '" preserveAspectRatio="none"><rect x="20" y="0" width="20" height="' + (h - 34) + '" fill="#c9ccd1"/><path d="M2 ' + h + 'L18 ' + (h - 34) + 'H42L58 ' + h + 'Z" fill="#b6bac0"/><rect x="6" y="' + (h - 4) + '" width="48" height="2" fill="#fff" opacity=".6"/></svg>'; }
+  function UPPERS(wm, hm) {
+    var w = rn(wm * 100), h = rn(hm * 100), n = Math.max(1, rn(w / 45)), dw = w / n, s = '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none"><rect width="' + w + '" height="' + h + '" fill="#a9784b"/>';
+    for (var i = 0; i < n; i++) s += '<rect x="' + (i * dw + 2) + '" y="2" width="' + (dw - 4) + '" height="' + (h - 4) + '" rx="1" fill="#b88858"/><rect x="' + (i * dw + dw / 2 - 5) + '" y="' + (h - 9) + '" width="10" height="2" rx="1" fill="#e2c27a"/>';
+    return s + '</svg>';
+  }
+  function FRIDGE() { return '<svg viewBox="0 0 72 175" preserveAspectRatio="none"><defs><linearGradient id="frg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bfc3c9"/><stop offset=".5" stop-color="#e4e7eb"/><stop offset="1" stop-color="#b3b7bd"/></linearGradient></defs><rect width="72" height="175" rx="3" fill="url(#frg)"/><rect y="55" width="72" height="2" fill="#8f949b"/><rect x="60" y="12" width="3" height="30" rx="1.5" fill="#4a4d53"/><rect x="60" y="68" width="3" height="50" rx="1.5" fill="#4a4d53"/><rect x="6" y="168" width="60" height="7" fill="#7e8389"/></svg>'; }
 
   function line() { return byId(S.id); }
   function variant() { return line().variants[S.vi]; }
 
-  function placeProp(id, wm, hm, x, z) {
-    var e = $("#" + id), u = G.u, w = wm * u, h = hm * u;
-    e.style.width = w + "px"; e.style.height = h + "px"; e.style.left = (x * u - w / 2) + "px"; e.style.top = (G.Hm * u / 2 - h) + "px";
+  var PR = {}, used = {};
+  // coloca un mueble (billboard): ancho/alto en m, x/z en m desde el centro, y = altura del suelo a su base
+  function put(key, wm, hm, x, z, y, svg) {
+    var p = PR[key];
+    if (!p) { var d = document.createElement("div"); d.className = "prop"; if (FLAT[key]) d.classList.add("flat"); room.appendChild(d); p = PR[key] = { el: d, svg: "" }; }
+    used[key] = 1; var e = p.el, u = G.u, w = wm * u, h = hm * u;
+    if (p.svg !== svg) { e.innerHTML = svg; p.svg = svg; }
+    e.style.display = "block"; e.style.width = w + "px"; e.style.height = h + "px"; e.style.left = (x * u - w / 2) + "px"; e.style.top = (G.Hm * u / 2 - h - (y || 0) * u) + "px";
     e.style.transform = "translateZ(" + (z * u) + "px) rotateY(calc(var(--yaw) * -1deg)) rotateX(calc(var(--pitch) * -1deg))";
+  }
+  function placeProps(floor, Wm, Dm) {
+    used = {}; var zb = -Dm / 2, env = floor ? "sala" : S.env, Hm = G.Hm;
+    if (env === "tv") {
+      var rw = Math.min(2.2, Wm * 0.62), tw = Math.min(1.45, rw * 0.74);
+      put("rack", rw, 0.45, 0, zb + 0.22, 0, RACK(rw));
+      put("tv", tw, tw * 0.592, 0, zb + 0.2, 0.5, TV());
+      put("plant", 0.55, 1.45, -Wm / 2 + 0.45, zb + 0.4, 0, PLANT());
+      put("lamp", 0.34, 1.75, Wm / 2 - 0.4, zb + 0.45, 0, LAMP());
+    } else if (env === "bano") {
+      var tx = -Wm / 2 + 0.5, sx = Wm / 2 - 0.55, vL = tx + 0.25, vR = sx - 0.45, vw = Math.max(0.55, Math.min(0.9, (vR - vL) - 0.1)), vx = (vL + vR) / 2, sh = Math.min(2.0, Hm - 0.1);
+      put("toilet", 0.4, 0.78, tx, zb + 0.38, 0, TOILET());
+      put("shelf", 0.5, 0.3, tx, zb + 0.06, 1.3, SHELF());
+      put("vanity", vw, 0.9, vx, zb + 0.26, 0, VANITY(vw));
+      put("mirror", 0.62, 0.62, vx, zb + 0.05, 1.22, MIRROR());
+      put("shower", 0.85, sh, sx, zb + 0.55, 0, SHOWER());
+    } else if (env === "cocina") {
+      var fx = Wm / 2 - 0.5, free = Wm / 2 - 0.88, sxk = (-Wm / 2 + free) / 2, L = (sxk - 0.3) + Wm / 2, Rr = free - (sxk + 0.3), lx = -Wm / 2 + L / 2, rx = free - Rr / 2, uh = Math.min(0.7, Hm - 1.55);
+      put("fridge", 0.72, 1.75, fx, zb + 0.35, 0, FRIDGE());
+      put("stove", 0.6, 1.15, sxk, zb + 0.3, 0, STOVE());
+      if (L >= 0.3) { put("counterL", L, 0.9, lx, zb + 0.3, 0, COUNTER(L, false)); put("uppers", L, uh, lx, zb + 0.16, 1.5, UPPERS(L, uh)); }
+      if (Rr >= 0.3) { put("counterR", Rr, 1.15, rx, zb + 0.3, 0, COUNTER(Rr, true)); put("uppers2", Rr, uh, rx, zb + 0.16, 1.5, UPPERS(Rr, uh)); }
+      put("hood", 0.6, Hm - 1.55, sxk, zb + 0.2, 1.55, HOOD(Hm - 1.55));
+    } else {
+      var sw = Math.min(2.3, Wm * 0.7);
+      put("sofa", sw, sw * 0.4, 0, zb + 0.55, 0, SOFA());
+      put("table", Math.min(1.0, sw * 0.45), 0.42, 0, floor ? 0.25 : zb + 1.5, 0, TABLE());
+      put("plant", floor ? 0.42 : 0.55, floor ? 1.15 : 1.45, -Wm / 2 + 0.45, zb + 0.4, 0, PLANT());
+      put("lamp", floor ? 0.26 : 0.34, floor ? 1.3 : 1.75, Wm / 2 - 0.4, zb + 0.45, 0, LAMP());
+    }
+    Object.keys(PR).forEach(function (k) { if (!used[k]) PR[k].el.style.display = "none"; });
   }
 
   function layout() {
@@ -152,12 +229,7 @@
     G.u = u; G.Wm = Wm; G.Hm = Hm; G.Dm = Dm;
     scene.style.setProperty("--p", P + "px");
     room.style.setProperty("--w", Wm * u + "px"); room.style.setProperty("--h", Hm * u + "px"); room.style.setProperty("--d", Dm * u + "px"); room.style.setProperty("--u", u + "px");
-    // muebles (billboards)
-    var sw = Math.min(2.3, Wm * 0.7);
-    placeProp("pSofa", sw, sw * 0.4, 0, -Dm / 2 + 0.55);
-    placeProp("pTable", Math.min(1.0, sw * 0.45), 0.42, 0, floor ? 0.25 : -Dm / 2 + 1.5);
-    placeProp("pPlant", floor ? 0.42 : 0.55, floor ? 1.15 : 1.45, -Wm / 2 + 0.45, -Dm / 2 + 0.4);
-    placeProp("pLamp", floor ? 0.26 : 0.34, floor ? 1.3 : 1.75, Wm / 2 - 0.4, -Dm / 2 + 0.45);
+    placeProps(floor, Wm, Dm);
     paintSurface(); labels();
   }
 
@@ -190,6 +262,7 @@
     var cw, ch, x0, y0;
     if (S.mode === "accent") { cw = Math.max(1.2, Wm * 0.6); ch = Hm; x0 = (Wm - cw) / 2; y0 = 0; }
     else if (S.mode === "half") { cw = Wm; ch = Math.min(1.1, Hm); x0 = 0; y0 = Hm - ch; }
+    else if (S.mode === "splash") { cw = Wm; ch = Math.min(0.6, Hm); x0 = 0; y0 = Math.max(0, Hm - 1.5); }
     else { cw = Wm; ch = Hm; x0 = 0; y0 = 0; }
     S.cov = { w: cw, h: ch };
     [cover, seams].forEach(function (e) { e.style.display = "block"; e.style.left = x0 * u + "px"; e.style.top = y0 * u + "px"; e.style.width = cw * u + "px"; e.style.height = ch * u + "px"; });
@@ -227,7 +300,7 @@
     quote.appendChild(el("p", null, note + " Cantidad aproximada; no incluye pegante ni accesorios."));
     var row = el("div", "row"); row.appendChild(el("span", null, "Total aprox.")); row.appendChild(el("span", null, cop(S.q.total))); quote.appendChild(row);
     var wbtn = el("a", "btn gold", "Cotizar esto por WhatsApp"); wbtn.rel = "noopener";
-    wbtn.href = wa("Hola, quiero cotizar " + ln.name + " (" + v.name + ") para " + (floor ? "un piso de " + m(S.fw) + " × " + m(S.fd) + " m" : (S.mode === "full" ? "una pared" : S.mode === "accent" ? "una pared de acento" : "media pared") + " de " + m(S.W) + " × " + m(S.H) + " m") + ": aprox. " + qty + " " + unit + " (" + cop(S.q.total) + "). ¿Tienen disponibilidad?");
+    wbtn.href = wa("Hola, quiero cotizar " + ln.name + " (" + v.name + ") para " + (floor ? "un piso de " + m(S.fw) + " × " + m(S.fd) + " m" : (S.mode === "full" ? "una pared" : S.mode === "accent" ? "una pared de acento" : S.mode === "splash" ? "un salpicadero" : "media pared") + " de " + m(S.W) + " × " + m(S.H) + " m en " + ENVS[S.env].name.toLowerCase()) + ": aprox. " + qty + " " + unit + " (" + cop(S.q.total) + "). ¿Tienen disponibilidad?");
     quote.appendChild(wbtn);
   }
 
@@ -242,12 +315,36 @@
     var box = $("#simVars"), ln = line(); box.textContent = "";
     ln.variants.forEach(function (v, i) { box.appendChild(varBtn(v, i, i === S.vi, function (k) { S.vi = k; buildVars(); layoutSoft(); }, true)); });
   }
+  function buildEnvs() {
+    var box = $("#envs"); box.textContent = "";
+    Object.keys(ENVS).forEach(function (k) {
+      var on = k === S.env, b = el("button", "chip" + (on ? " on" : ""), ENVS[k].name); b.type = "button"; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", on ? "true" : "false");
+      b.addEventListener("click", function () { setEnv(k, true); }); box.appendChild(b);
+    });
+  }
+  function buildModes() {
+    var box = $("#modes"), E = ENVS[S.env]; box.textContent = "";
+    if (E.modes.every(function (x) { return x[0] !== S.mode; })) S.mode = E.mode0;
+    E.modes.forEach(function (x) {
+      var on = x[0] === S.mode, b = el("button", "chip" + (on ? " on" : ""), x[1]); b.type = "button"; b.setAttribute("data-m", x[0]); b.setAttribute("role", "radio"); b.setAttribute("aria-checked", on ? "true" : "false");
+      b.addEventListener("click", function () { S.mode = x[0]; buildModes(); layoutSoft(); }); box.appendChild(b);
+    });
+  }
   function configControls() {
-    var floor = !!line().sim.floor;
+    var floor = !!line().sim.floor, E = ENVS[S.env];
     $("#lbW").textContent = floor ? "Ancho de la alfombra" : "Ancho de la pared"; $("#lbH").textContent = floor ? "Largo de la alfombra" : "Alto de la pared";
     if (floor) { inW.min = 1; inW.max = 5; inW.value = S.fw; inH.min = 1; inH.max = 6; inH.value = S.fd; }
     else { inW.min = 1; inW.max = 8; inW.value = S.W; inH.min = 2; inH.max = 3.6; inH.value = S.H; }
+    $("#envBox").hidden = floor; $("#hProd").textContent = (floor ? "1" : "2") + " · Elige el producto"; $("#hVar").textContent = (floor ? "2" : "3") + " · Elige el modelo"; $("#hMed").textContent = (floor ? "3" : "4") + " · Tus medidas";
+    room.classList.remove("env-bano", "env-cocina"); if (!floor && E.cls) room.classList.add(E.cls);
+    stage.setAttribute("aria-label", (floor ? "Alfombra en la sala" : E.name) + " en 3D. Arrastra para girar");
+    var hint = $("#envNote"); hint.hidden = floor || !E.hint; hint.textContent = E.hint || "";
+    buildEnvs(); buildModes();
     $("#modes").style.display = floor ? "none" : "flex"; outW.textContent = m(+inW.value) + " m"; outH.textContent = m(+inH.value) + " m";
+  }
+  function setEnv(k, reset) {
+    S.env = k; var E = ENVS[k]; if (reset) { S.W = E.W; S.H = E.H; S.mode = E.mode0; }
+    configControls(); layout();
   }
   function selectSim(id, vi, scroll) {
     S.id = id; S.vi = vi || 0; buildLines(); buildVars(); configControls();
@@ -259,9 +356,6 @@
 
   inW.addEventListener("input", function () { var f = !!line().sim.floor; if (f) S.fw = +inW.value; else S.W = +inW.value; outW.textContent = m(+inW.value) + " m"; layout(); });
   inH.addEventListener("input", function () { var f = !!line().sim.floor; if (f) S.fd = +inH.value; else S.H = +inH.value; outH.textContent = m(+inH.value) + " m"; layout(); });
-  Array.prototype.forEach.call(document.querySelectorAll("#modes .chip"), function (b) {
-    b.addEventListener("click", function () { S.mode = b.getAttribute("data-m"); Array.prototype.forEach.call(document.querySelectorAll("#modes .chip"), function (x) { var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-checked", on ? "true" : "false"); }); layoutSoft(); });
-  });
   function setViewBtns(fl) { $("#vFront").textContent = fl ? "Desde arriba" : "Vista frontal"; $("#v3d").textContent = "Vista 3D"; $("#v3d").classList.add("on"); $("#vFront").classList.remove("on"); }
 $("#vFront").addEventListener("click", function () { var fl = !!line().sim.floor; S.idle = false; S.tyaw = 0; S.tpitch = fl ? -62 : 0; $("#vFront").classList.add("on"); $("#v3d").classList.remove("on"); layout(); kick(); });
 $("#v3d").addEventListener("click", function () { var fl = !!line().sim.floor; S.idle = !REDUCED; S.tyaw = fl ? -14 : -16; S.tpitch = fl ? -34 : 2; $("#v3d").classList.add("on"); $("#vFront").classList.remove("on"); layout(); kick(); });
@@ -314,7 +408,7 @@ $("#v3d").addEventListener("click", function () { var fl = !!line().sim.floor; S
   var toast = $("#toast"), tt = 0;
   function say(msg) { toast.textContent = msg; toast.hidden = false; clearTimeout(tt); tt = setTimeout(function () { toast.hidden = true; }, 2600); }
   $("#simShare").addEventListener("click", function () {
-    var ln = line(), v = variant(), h = "#sim=" + [S.id, S.vi, S.mode, S.W, S.H, S.fw, S.fd].join(",");
+    var ln = line(), v = variant(), h = "#sim=" + [S.id, S.vi, S.mode, S.W, S.H, S.fw, S.fd, S.env].join(",");
     var url = location.origin + location.pathname + h, text = "Mira cómo quedaría " + ln.name + " (" + v.name + ") en mi espacio";
     history.replaceState(null, "", h);
     if (navigator.share) { navigator.share({ title: "La Reina del PVC", text: text, url: url }).catch(function () {}); return; }
@@ -324,10 +418,9 @@ $("#v3d").addEventListener("click", function () { var fl = !!line().sim.floor; S
   (function restore() {
     var m = /^#sim=(.+)$/.exec(location.hash); if (!m) return; var p = m[1].split(","), it = byId(p[0]); if (!it || !it.sim) return;
     var vi = +p[1] || 0; if (vi >= it.variants.length) vi = 0;
-    if (["full", "accent", "half"].indexOf(p[2]) > -1) S.mode = p[2];
+    if (ENVS[p[7]]) S.env = p[7]; if (["full", "accent", "half", "splash"].indexOf(p[2]) > -1) S.mode = p[2];
     var n = function (x, lo, hi, d) { x = parseFloat(x); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; };
     S.W = n(p[3], 1, 8, S.W); S.H = n(p[4], 2, 3.6, S.H); S.fw = n(p[5], 1, 5, S.fw); S.fd = n(p[6], 1, 6, S.fd);
-    Array.prototype.forEach.call(document.querySelectorAll("#modes .chip"), function (x) { var on = x.getAttribute("data-m") === S.mode; x.classList.toggle("on", on); x.setAttribute("aria-checked", on ? "true" : "false"); });
     selectSim(it.id, vi, false); setTimeout(function () { $("#simulador").scrollIntoView(); }, 300);
   })();
 

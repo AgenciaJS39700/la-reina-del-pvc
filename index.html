@@ -85,7 +85,7 @@
   <div class="wrap">
     <p class="eyebrow">Simulador</p>
     <h2 id="h-sim">Pruébalo en tu espacio</h2>
-    <p class="sub">Elige un producto, pon las medidas de tu pared y mira cómo queda. Arrastra la sala para girarla.</p>
+    <p class="sub">Elige un ambiente y un producto, pon las medidas de tu pared y mira cómo queda. Arrastra para girar.</p>
     <div class="sim">
       <div class="sim-view">
         <div class="stage" id="stage" aria-label="Sala en 3D. Arrastra para girar" role="img">
@@ -95,8 +95,7 @@
             <div class="face right"></div>
             <div class="face floor" id="fFloor"><div class="rug" id="rug"></div><div class="fshade"></div></div>
             <div class="face ceil"></div>
-            <div class="prop" id="pSofa"></div><div class="prop" id="pTable"></div><div class="prop" id="pPlant"></div><div class="prop" id="pLamp"></div>
-          </div></div>
+                      </div></div>
           <div class="dim-w" id="dimW"></div><div class="dim-h" id="dimH"></div>
         </div>
         <div class="stage-bar">
@@ -105,20 +104,18 @@
         </div>
       </div>
       <div class="sim-ctl">
-        <h3 class="st">1 · Elige el producto</h3>
+        <div id="envBox"><h3 class="st">1 · Elige el ambiente</h3><div class="lines" id="envs" role="radiogroup" aria-label="Ambiente"></div></div>
+        <h3 class="st" id="hProd">2 · Elige el producto</h3>
         <div class="lines" id="simLines" role="tablist" aria-label="Producto"></div>
-        <h3 class="st">2 · Elige el modelo</h3>
+        <h3 class="st" id="hVar">3 · Elige el modelo</h3>
         <div class="vgrid" id="simVars" role="listbox" aria-label="Modelo"></div>
-        <h3 class="st">3 · Tus medidas</h3>
+        <h3 class="st" id="hMed">4 · Tus medidas</h3>
         <div class="fields">
           <label class="fld"><span id="lbW">Ancho de la pared</span><b id="outW"></b><input id="inW" type="range" min="1" max="8" step="0.1" value="3.2"></label>
           <label class="fld"><span id="lbH">Alto de la pared</span><b id="outH"></b><input id="inH" type="range" min="2" max="3.6" step="0.1" value="2.5"></label>
         </div>
-        <div class="modes" id="modes" role="radiogroup" aria-label="Qué parte cubrir">
-          <button type="button" class="chip on" data-m="full" role="radio" aria-checked="true">Pared completa</button>
-          <button type="button" class="chip" data-m="accent" role="radio" aria-checked="false">Pared de acento</button>
-          <button type="button" class="chip" data-m="half" role="radio" aria-checked="false">Media pared</button>
-        </div>
+        <div class="modes" id="modes" role="radiogroup" aria-label="Qué parte cubrir"></div>
+        <p class="hint" id="envNote" hidden></p>
         <div class="quote" id="quote" aria-live="polite"></div><p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
       </div>
     </div>

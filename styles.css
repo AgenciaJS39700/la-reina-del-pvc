@@ -317,3 +317,11 @@ input[type=range]{min-height:32px}
 /* vídeo en el teléfono */
 .screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
 .screen .cap{cursor:pointer}
+
+/* ambientes del simulador */
+.prop.flat svg{filter:none}
+.env-bano .floor,.env-cocina .floor{background:linear-gradient(90deg,rgba(0,0,0,.14) 1px,transparent 1px) 0 0/calc(var(--u)*.6) calc(var(--u)*.6),linear-gradient(0deg,rgba(0,0,0,.14) 1px,transparent 1px) 0 0/calc(var(--u)*.6) calc(var(--u)*.6),#cdc8be}
+.env-bano .left,.env-bano .right,.env-cocina .left,.env-cocina .right{background:linear-gradient(90deg,#dcd8cf,#e7e3da 60%,#d6d2c8)}
+.env-bano .win{left:58%;top:14%;width:24%;height:26%}
+.hint{color:#cdbf9f;font-size:.82rem;margin:10px 0 0}
+#envBox .lines{margin-bottom:0}
