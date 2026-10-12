@@ -33,10 +33,8 @@
   <nav class="nav" aria-label="Principal">
     <a href="#catalogo">Catálogo</a>
     <a href="#simulador">Simulador</a>
-    <a href="#instalar">Cómo instalar</a>
-    <a href="#asesores">Asesores</a>
-    <a href="#preguntas">Preguntas</a>
-    <a href="#visitanos">Visítanos</a>
+    <a href="#instalar">Instalar y dudas</a>
+    <a href="#contacto">Contacto</a>
   </nav>
   <a class="btn gold sm" href="https://wa.me/573218911231?text=Hola%2C%20quiero%20cotizar%20productos%20de%20La%20Reina%20del%20PVC" rel="noopener">WhatsApp</a>
 </header>
@@ -47,18 +45,24 @@
     <div class="hero-txt">
     <p class="eyebrow">Pereira · Importadores directos</p>
     <h1>Viste tus paredes con <em>PVC, WPC y piedra PU</em></h1>
-    <p class="lead">Láminas, paneles y papeles adhesivos decorativos, con los pegantes y accesorios para instalarlos bien. Al detal y al por mayor.</p>
+    <p class="lead">Láminas, paneles y papeles adhesivos decorativos, con todo para instalarlos. Al detal y al por mayor.</p>
     <div class="cta">
       <a class="btn gold" href="#simulador">Probar en mi pared</a>
       <a class="btn ghost" href="#catalogo">Ver catálogo</a>
     </div>
-    <ul class="proof">
-      <li><b>Importación directa</b><span>mejor precio</span></li>
-      <li><b>Detal y mayor</b><span>asesor para cada caso</span></li>
-      <li><b>Todo para instalar</b><span>pegantes, cintas, perfiles</span></li>
-    </ul>
+    <ul class="proof"><li>Importación directa</li><li>Detal y mayor</li><li>Todo para instalar</li></ul>
     </div>
-    <figure class="hero-pic"><img src="img/hero.webp" width="1000" height="760" alt="Ambientes decorados con láminas WPC, papel adhesivo, panel PU y paneles 3D de La Reina del PVC" fetchpriority="high"></figure>
+    <div class="phone" id="reel" role="group" aria-roledescription="carrusel" aria-label="Novedades en vídeo corto">
+      <div class="notch" aria-hidden="true"></div>
+      <div class="screen">
+        <div class="bars" id="reelBars" aria-hidden="true"></div>
+        <div class="slides" id="reelSlides"></div>
+        <div class="cap"><b id="reelT"></b><span id="reelS"></span></div>
+        <button type="button" class="rbtn prev" id="reelPrev" aria-label="Anterior"></button>
+        <button type="button" class="rbtn next" id="reelNext" aria-label="Siguiente"></button>
+        <button type="button" class="rpause" id="reelPause" aria-label="Pausar">❚❚</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -66,13 +70,14 @@
   <div class="wrap">
     <p class="eyebrow">Catálogo</p>
     <h2 id="h-cat">Elige tu acabado</h2>
-    <p class="sub">Precios en pesos colombianos (COP). La disponibilidad cambia a diario: confírmala con un asesor.</p>
+    <p class="sub">Precios en COP. Confirma la disponibilidad con un asesor.</p>
     <div class="tools">
       <div class="tabs" role="tablist" aria-label="Categorías" id="tabs"></div>
       <label class="search"><span class="sr">Buscar producto</span>
         <input id="q" type="search" placeholder="Buscar: WPC, mármol, pegante…" autocomplete="off">
       </label>
     </div>
+    <div class="styles" id="styles" role="group" aria-label="Filtrar por estilo"></div>
     <p class="count" id="count" aria-live="polite"></p>
     <div class="grid" id="grid"></div>
     <p class="empty" id="empty" hidden>No encontramos ese producto. Escríbenos por WhatsApp y te ayudamos.</p>
@@ -99,7 +104,7 @@
         </div>
         <div class="stage-bar">
           <span class="stage-name" id="stageName" aria-live="polite"></span>
-          <span class="stage-btns"><button type="button" class="chip" id="vFront">Vista frontal</button><button type="button" class="chip on" id="v3d">Vista 3D</button></span>
+          <span class="stage-btns"><button type="button" class="chip" id="vFront">Vista frontal</button><button type="button" class="chip on" id="v3d">Vista 3D</button><button type="button" class="chip" id="simShare">Compartir</button></span>
         </div>
       </div>
       <div class="sim-ctl">
@@ -117,73 +122,45 @@
           <button type="button" class="chip" data-m="accent" role="radio" aria-checked="false">Pared de acento</button>
           <button type="button" class="chip" data-m="half" role="radio" aria-checked="false">Media pared</button>
         </div>
-        <div class="quote" id="quote" aria-live="polite"></div>
+        <div class="quote" id="quote" aria-live="polite"></div><p class="toast" id="toast" role="status" aria-live="polite" hidden></p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="sec alt" id="instalar" aria-labelledby="h-ins">
-  <div class="wrap">
-    <p class="eyebrow">Instalación</p>
-    <h2 id="h-ins">Tres formas de instalar tus láminas WPC</h2>
-    <div class="steps">
+
+
+<section class="sec" id="instalar" aria-labelledby="h-ins"><div class="wrap narrow">
+<p class="eyebrow">Instalación y dudas</p><h2 id="h-ins">Instala fácil, compra tranquilo</h2>
+<h3 class="mini">Tres formas de instalar láminas WPC</h3>
+<div class="steps">
       <article><span class="n">1</span><h3>Pegante No Más Clavos</h3><p>La mejor opción: máxima adherencia, más durabilidad y acabado profesional sin perforar.</p></article>
       <article><span class="n">2</span><h3>Silicona</h3><p>Fijación alternativa y más económica. Sirve para aplicaciones básicas; agarra menos que el pegante.</p></article>
       <article><span class="n">3</span><h3>Chapetas o clips</h3><p>Atornilladas a la pared: usa de 3 a 4 por lámina para una sujeción firme.</p></article>
     </div>
-    <p class="note">Para láminas UV recomendamos el pegante No Más Clavos y rematar con uniones y terminales decorativos.</p>
-  </div>
-</section>
+<p class="note">Para láminas UV recomendamos el pegante No Más Clavos y rematar con uniones y terminales decorativos.</p>
+<h3 class="mini">Preguntas frecuentes</h3>
+<details class="qa"><summary>¿Cómo sé cuántas piezas necesito?</summary><p>Usa el simulador: pon el ancho y el alto de tu pared (o el tamaño de tu alfombra) y calcula las piezas, los rollos o las láminas con un margen para cortes. Es una cantidad aproximada; tu asesor la confirma antes de la compra.</p></details><details class="qa"><summary>¿Venden al por mayor?</summary><p>Sí. Atendemos al detal y al por mayor con asesores distintos. Escribe al asesor mayorista por WhatsApp desde la sección de asesores.</p></details><details class="qa"><summary>¿Qué necesito para instalar las láminas WPC?</summary><p>Las láminas WPC se instalan con pegante, silicona o chapetas. En el catálogo encuentras el pegante No Más Clavos, la silicona y las chapetas, además de cintas y uniones decorativas para los acabados.</p></details><details class="qa"><summary>¿El papel adhesivo y los paneles autoadhesivos se pegan solos?</summary><p>Sí, son autoadhesivos. Aplícalos sobre una superficie limpia, seca y lisa. Mira la sección «Cómo instalar» y consulta a tu asesor si tu pared tiene humedad o irregularidades.</p></details><details class="qa"><summary>¿Los colores de la página son exactos?</summary><p>Son una referencia: el color y la textura pueden variar según la pantalla y el lote. Si el tono es importante, pide una muestra o confirma con tu asesor antes de comprar.</p></details><details class="qa"><summary>¿Cómo compro y cómo pago?</summary><p>La compra se acuerda con un asesor por WhatsApp: confirma disponibilidad, cantidad, precio, forma de pago y entrega. Esta página no recibe pagos.</p></details><details class="qa"><summary>¿Tienen cambios y garantía?</summary><p>Sí, aplica la garantía legal de la Ley 1480 de 2011. Consulta los detalles en nuestra política de <a href="legal/cambios-garantias.html">cambios, garantías y retracto</a>.</p></details></div></section>
 
-<section class="sec" id="asesores" aria-labelledby="h-as">
-  <div class="wrap">
-    <p class="eyebrow">Asesoría</p>
-    <h2 id="h-as">Habla con un asesor</h2>
-    <p class="sub">Escríbenos y te respondemos por WhatsApp.</p>
-    <div class="advisors">
-      <a class="adv" href="https://wa.me/573218911231" rel="noopener"><span class="ic" aria-hidden="true">🛍️</span><h3>Ventas al detal</h3><p>Para tu casa, local o proyecto pequeño.</p><b>+57 321 891 1231</b></a>
-      <a class="adv" href="https://wa.me/573146659658" rel="noopener"><span class="ic" aria-hidden="true">📦</span><h3>Ventas al por mayor</h3><p>Instaladores, decoradores y tiendas.</p><b>+57 314 665 9658</b></a>
-      <a class="adv" href="https://wa.me/message/WZK63YZQMFL2A1" rel="noopener"><span class="ic" aria-hidden="true">🧱</span><h3>Piso SPC</h3><p>Asesor especializado en piso SPC.</p><b>Escribir por WhatsApp</b></a>
-    </div>
-  </div>
-</section>
-
-<section class="sec" id="preguntas" aria-labelledby="h-faq"><div class="wrap narrow"><p class="eyebrow">Preguntas frecuentes</p><h2 id="h-faq">Antes de comprar</h2><details class="qa"><summary>¿Cómo sé cuántas piezas necesito?</summary><p>Usa el simulador: pon el ancho y el alto de tu pared (o el tamaño de tu alfombra) y calcula las piezas, los rollos o las láminas con un margen para cortes. Es una cantidad aproximada; tu asesor la confirma antes de la compra.</p></details><details class="qa"><summary>¿Venden al por mayor?</summary><p>Sí. Atendemos al detal y al por mayor con asesores distintos. Escribe al asesor mayorista por WhatsApp desde la sección de asesores.</p></details><details class="qa"><summary>¿Qué necesito para instalar las láminas WPC?</summary><p>Las láminas WPC se instalan con pegante, silicona o chapetas. En el catálogo encuentras el pegante No Más Clavos, la silicona y las chapetas, además de cintas y uniones decorativas para los acabados.</p></details><details class="qa"><summary>¿El papel adhesivo y los paneles autoadhesivos se pegan solos?</summary><p>Sí, son autoadhesivos. Aplícalos sobre una superficie limpia, seca y lisa. Mira la sección «Cómo instalar» y consulta a tu asesor si tu pared tiene humedad o irregularidades.</p></details><details class="qa"><summary>¿Los colores de la página son exactos?</summary><p>Son una referencia: el color y la textura pueden variar según la pantalla y el lote. Si el tono es importante, pide una muestra o confirma con tu asesor antes de comprar.</p></details><details class="qa"><summary>¿Cómo compro y cómo pago?</summary><p>La compra se acuerda con un asesor por WhatsApp: confirma disponibilidad, cantidad, precio, forma de pago y entrega. Esta página no recibe pagos.</p></details><details class="qa"><summary>¿Tienen cambios y garantía?</summary><p>Sí, aplica la garantía legal de la Ley 1480 de 2011. Consulta los detalles en nuestra política de <a href="legal/cambios-garantias.html">cambios, garantías y retracto</a>.</p></details></div></section>
-
-<section class="sec alt" id="visitanos" aria-labelledby="h-vis">
-  <div class="wrap two">
-    <div>
-      <p class="eyebrow">Visítanos</p>
-      <h2 id="h-vis">Estamos en Pereira</h2>
-      <p class="addr"><b>Cr 7 #30-59</b><br>Pereira, Risaralda, Colombia</p>
-      <p class="sub">Confirma por WhatsApp el horario y la disponibilidad antes de venir.</p>
-      <div class="cta">
-        <a class="btn gold" href="https://www.google.com/maps/search/?api=1&query=Cr+7+%2330-59+Pereira+Colombia" rel="noopener">Cómo llegar</a>
-        <a class="btn ghost dark" href="https://www.instagram.com/lareinadelpvc/" rel="noopener me">Instagram</a>
-        <a class="btn ghost dark" href="https://www.tiktok.com/@lareinadelpvc" rel="noopener me">TikTok</a>
-      </div>
-    </div>
-    <div class="card-ig">
-      <h3>Síguenos y mira instalaciones</h3>
-      <p>Novedades, colores que llegan y trabajos terminados en nuestro Instagram y TikTok <b>@lareinadelpvc</b>.</p>
-      <a class="btn gold" href="https://linktr.ee/lareinadelpvc" rel="noopener">Todos nuestros enlaces</a>
-    </div>
-  </div>
-</section>
+<section class="sec alt" id="contacto" aria-labelledby="h-as"><div class="wrap">
+<p class="eyebrow">Contacto</p><h2 id="h-as">Habla con un asesor</h2>
+<div class="advisors">
+<a class="adv" href="https://wa.me/573218911231" rel="noopener"><span class="ic" aria-hidden="true">🛍️</span><div><h3>Ventas al detal</h3><p>Casa, local o proyecto pequeño</p><b>+57 321 891 1231</b></div></a>
+<a class="adv" href="https://wa.me/573146659658" rel="noopener"><span class="ic" aria-hidden="true">📦</span><div><h3>Al por mayor</h3><p>Instaladores, decoradores, tiendas</p><b>+57 314 665 9658</b></div></a>
+<a class="adv" href="https://wa.me/message/WZK63YZQMFL2A1" rel="noopener"><span class="ic" aria-hidden="true">🧱</span><div><h3>Piso SPC</h3><p>Asesor especializado</p><b>Escribir por WhatsApp</b></div></a>
+</div>
+<div class="visit"><p class="addr"><b>Cr 7 #30-59</b> · Pereira, Risaralda. <span>Confirma el horario por WhatsApp antes de venir.</span></p>
+<div class="cta"><a class="btn gold" href="https://www.google.com/maps/search/?api=1&query=Cr+7+%2330-59+Pereira+Colombia" rel="noopener">Cómo llegar</a><a class="btn ghost dark" href="https://www.instagram.com/lareinadelpvc/" rel="noopener me">Instagram</a><a class="btn ghost dark" href="https://www.tiktok.com/@lareinadelpvc" rel="noopener me">TikTok</a></div></div>
+</div></section>
 </main>
 
 <footer class="foot">
   <div class="wrap foot-grid">
-    <div>
-      <a class="brand" href="#top" aria-label="La Reina del PVC, inicio"><img class="logo lg" src="img/logo.webp" width="96" height="96" alt="La Reina del PVC" loading="lazy"></a>
-      <p>Productos y servicios de PVC para tu hogar o proyecto.<br>Cr 7 #30-59, Pereira, Risaralda.</p>
-    </div>
-    <nav aria-label="Secciones"><h3>Explorar</h3><a href="#catalogo">Catálogo</a><a href="#simulador">Simulador</a><a href="#instalar">Cómo instalar</a><a href="#asesores">Asesores</a><a href="#visitanos">Visítanos</a></nav>
-    <nav aria-label="Información legal"><h3>Legal</h3><a href="legal/terminos.html">Términos y condiciones</a><a href="legal/privacidad.html">Política de privacidad</a><a href="legal/cambios-garantias.html">Cambios, garantías y retracto</a><a href="legal/cookies.html">Política de cookies</a><a href="legal/aviso-legal.html">Aviso legal</a></nav>
-    <nav aria-label="Redes"><h3>Síguenos</h3><a href="https://www.instagram.com/lareinadelpvc/" rel="noopener me">Instagram</a><a href="https://www.tiktok.com/@lareinadelpvc" rel="noopener me">TikTok</a><a href="https://linktr.ee/lareinadelpvc" rel="noopener me">Linktree</a></nav>
+    <div class="fb"><a class="brand" href="#top" aria-label="La Reina del PVC, inicio"><img class="logo" src="img/logo.webp" width="48" height="48" alt="La Reina del PVC" loading="lazy"></a><p>Cr 7 #30-59, Pereira.<br>Productos y servicios de PVC para tu hogar o proyecto.</p></div>
+    <nav aria-label="Información legal"><h3>Legal</h3><a href="legal/terminos.html">Términos y condiciones</a><a href="legal/privacidad.html">Privacidad</a><a href="legal/cambios-garantias.html">Cambios y garantías</a><a href="legal/cookies.html">Cookies</a><a href="legal/aviso-legal.html">Aviso legal</a></nav>
+    <nav aria-label="Redes"><h3>Síguenos</h3><a href="https://www.instagram.com/lareinadelpvc/" rel="noopener me">Instagram</a><a href="https://www.tiktok.com/@lareinadelpvc" rel="noopener me">TikTok</a></nav>
   </div>
-  <div class="wrap"><p class="fine">Precios en pesos colombianos (COP), IVA incluido salvo que se indique lo contrario, y sujetos a cambio sin previo aviso. La disponibilidad se confirma con un asesor. Las imágenes y simulaciones son de referencia: el color y la textura pueden variar según la pantalla y el lote. © 2026 La Reina del PVC.</p></div>
+  <div class="wrap"><p class="fine">Precios en COP, sujetos a cambio sin previo aviso. La disponibilidad se confirma con un asesor. Imágenes y simulaciones de referencia: el color puede variar según la pantalla. © 2026 La Reina del PVC.</p></div>
 </footer>
 
 <a class="fab" href="https://wa.me/573218911231?text=Hola%2C%20quiero%20cotizar%20productos%20de%20La%20Reina%20del%20PVC" rel="noopener" aria-label="Escribir por WhatsApp">
@@ -203,6 +180,7 @@
       <p class="v-price" id="vPrice"></p>
       <p class="spec" id="vSpec"></p>
       <p id="vDesc"></p>
+      <ul class="v-vr" id="vVr"></ul><ul class="tg" id="vTg"></ul>
       <div id="vVarsBox"><p class="st sm">Modelos</p><div class="vgrid sm" id="vVars"></div></div>
       <div class="v-acts"><a class="btn gold" id="vWa" rel="noopener">Cotizar por WhatsApp</a><button type="button" class="btn ghost dark" id="vSim">Probar en mi pared</button><a class="btn ghost dark" id="vCatalog" target="_blank" rel="noopener">Catálogo completo</a></div>
     </div>

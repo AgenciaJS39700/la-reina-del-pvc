@@ -28,10 +28,10 @@
     ph.appendChild(pt);
     if (it.variants) ph.appendChild(el("span", "badge", it.variants.length + " modelos"));
     open.appendChild(ph); open.addEventListener("click", function () { openViewer(it, 0); });
-    c.appendChild(open);
+    c.appendChild(open); c.classList.add("click"); c.addEventListener("click", function (e) { if (!e.target.closest("a,button")) openViewer(it, 0); });
     var bd = el("div", "bd");
     bd.appendChild(el("h3", null, it.name));
-    bd.appendChild(el("p", "spec", it.spec + (it.priceNote ? " · " + it.priceNote : "")));
+    bd.appendChild(el("p", "spec", it.spec));
     bd.appendChild(el("p", null, it.desc));
     if (it.tags && it.tags.length) { var ul = el("ul", "tg"); it.tags.forEach(function (t) { ul.appendChild(el("li", null, t)); }); bd.appendChild(ul); }
     if (it.variants_prices) {
@@ -59,7 +59,11 @@
     b.addEventListener("click", function () { cat.cat = c.id; Array.prototype.forEach.call(tabs.children, function (t) { t.setAttribute("aria-selected", t === b ? "true" : "false"); }); renderCatalog(); });
     tabs.appendChild(b);
   });
-  q.addEventListener("input", function () { cat.q = q.value; renderCatalog(); });
+  var STY = [["Mármol", "mármol"], ["Madera", "madera"], ["Piedra", "piedra"], ["Textura", "textura"], ["3D", "3d"], ["Para piso", "piso"]], sbox = $("#styles");
+  function syncStyles() { Array.prototype.forEach.call(sbox.children, function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-q") === norm(cat.q.trim()) ? "true" : "false"); }); }
+  STY.forEach(function (x) { var b = el("button", null, x[0]); b.type = "button"; b.setAttribute("data-q", norm(x[1])); b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function () { var on = b.getAttribute("aria-pressed") === "true"; cat.q = on ? "" : x[1]; q.value = cat.q; syncStyles(); renderCatalog(); }); sbox.appendChild(b); });
+  q.addEventListener("input", function () { cat.q = q.value; syncStyles(); renderCatalog(); });
   renderCatalog();
 
   /* ------------------------------------------------------------ visor */
@@ -93,6 +97,8 @@
     $("#vCat").textContent = cname; $("#vTitle").textContent = it.name + (v ? " · " + v.name : "");
     $("#vSpec").textContent = it.spec + (v && v.stock ? " · " + (v.stock === "agotado" ? "Agotado según catálogo" : v.stock + " unidades según catálogo") : "");
     $("#vDesc").textContent = it.desc;
+    var vr = $("#vVr"); vr.textContent = ""; (it.variants_prices || []).forEach(function (p) { var li = el("li"); li.appendChild(el("span", null, p[0])); li.appendChild(el("b", null, cop(p[1]))); vr.appendChild(li); });
+    var vt = $("#vTg"); vt.textContent = ""; (it.tags || []).forEach(function (t) { vt.appendChild(el("li", null, t)); });
     var box = $("#vVarsBox"), vars = $("#vVars"); vars.textContent = "";
     if (it.variants) { box.hidden = false; it.variants.forEach(function (x, i) { vars.appendChild(varBtn(x, i, i === V.vi, function (k) { V.vi = k; V.gi = 0; paintViewer(); }, true)); }); } else box.hidden = true;
     $("#vWa").href = wa("Hola, quiero cotizar: " + it.name + (v ? " (" + v.name + ")" : "") + " · " + it.spec + ".");
@@ -287,5 +293,51 @@ $("#v3d").addEventListener("click", function () { var fl = !!line().sim.floor; S
 
   room.style.setProperty("--yaw", S.yaw); room.style.setProperty("--pitch", S.pitch);
   selectSim(S.id, 0, false);
+
+  /* ------------------------------------------------------------ reel (teléfono del hero) */
+  (function () {
+    var REEL = [{"img": "img/reel-0.webp", "t": "Papel adhesivo mármol", "s": "Desde $66.000 / rollo", "id": "papel-adhesivo"}, {"img": "img/reel-1.webp", "t": "Lámina WPC", "s": "$25.000 / lámina", "id": "wpc"}, {"img": "img/reel-2.webp", "t": "Panel PU estilo piedra", "s": "$90.000 / unidad", "id": "panel-pu"}, {"img": "img/reel-3.webp", "t": "Panel 3D adhesivo", "s": "$15.000 / unidad", "id": "panel-3d"}, {"img": "img/reel-4.webp", "t": "Rollo texturizado", "s": "$80.000 / rollo", "id": "rollo-textura"}, {"img": "img/reel-5.webp", "t": "Lámina UV marmolizada", "s": "$120.000 / lámina", "id": "uv-marmol"}, {"img": "img/reel-6.webp", "t": "Mosaico adhesivo", "s": "$13.000 / unidad", "id": "mosaico"}], DUR = 3200, cur = 0, timer = 0, paused = REDUCED, vis = true;
+    var ph = $("#reel"), slides = $("#reelSlides"), bars = $("#reelBars"), capT = $("#reelT"), capS = $("#reelS"), cap = ph.querySelector(".cap"), pbtn = $("#reelPause");
+    var imgs = REEL.map(function (r, i) { var im = new Image(); im.alt = r.t; im.decoding = "async"; if (i === 0) im.fetchPriority = "high"; im.loading = i < 2 ? "eager" : "lazy"; im.src = r.img; slides.appendChild(im); bars.appendChild(el("i")); bars.lastChild.appendChild(el("b")); return im; });
+    cap.setAttribute("role", "button"); cap.tabIndex = 0; cap.style.cursor = "pointer";
+    function show(i) {
+      cur = (i + REEL.length) % REEL.length; clearTimeout(timer);
+      imgs.forEach(function (im, k) { im.classList.toggle("on", k === cur); });
+      Array.prototype.forEach.call(bars.children, function (b, k) { b.className = k < cur ? "done" : (k === cur ? "cur" : ""); void b.offsetWidth; });
+      capT.textContent = REEL[cur].t; capS.textContent = REEL[cur].s; cap.setAttribute("aria-label", "Ver " + REEL[cur].t);
+      ph.classList.toggle("paused", paused); pbtn.textContent = paused ? "▶" : "❚❚"; pbtn.setAttribute("aria-label", paused ? "Reproducir" : "Pausar");
+      if (!paused && vis && !document.hidden) timer = setTimeout(function () { show(cur + 1); }, DUR);
+    }
+    $("#reelNext").addEventListener("click", function () { show(cur + 1); });
+    $("#reelPrev").addEventListener("click", function () { show(cur - 1); });
+    pbtn.addEventListener("click", function () { paused = !paused; show(cur); });
+    function openCur() { var it = byId(REEL[cur].id); if (it) openViewer(it, 0); }
+    cap.addEventListener("click", openCur); cap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCur(); } });
+    if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { vis = es[0].isIntersecting; show(cur); }).observe(ph);
+    document.addEventListener("visibilitychange", function () { show(cur); });
+    ph.style.setProperty("--dur", DUR + "ms"); show(0);
+  })();
+
+  /* ------------------------------------------------------------ compartir simulación */
+  var toast = $("#toast"), tt = 0;
+  function say(msg) { toast.textContent = msg; toast.hidden = false; clearTimeout(tt); tt = setTimeout(function () { toast.hidden = true; }, 2600); }
+  $("#simShare").addEventListener("click", function () {
+    var ln = line(), v = variant(), h = "#sim=" + [S.id, S.vi, S.mode, S.W, S.H, S.fw, S.fd].join(",");
+    var url = location.origin + location.pathname + h, text = "Mira cómo quedaría " + ln.name + " (" + v.name + ") en mi espacio";
+    history.replaceState(null, "", h);
+    if (navigator.share) { navigator.share({ title: "La Reina del PVC", text: text, url: url }).catch(function () {}); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { say("Enlace copiado"); }, function () { say("Copia el enlace de la barra del navegador"); });
+    else say("Copia el enlace de la barra del navegador");
+  });
+  (function restore() {
+    var m = /^#sim=(.+)$/.exec(location.hash); if (!m) return; var p = m[1].split(","), it = byId(p[0]); if (!it || !it.sim) return;
+    var vi = +p[1] || 0; if (vi >= it.variants.length) vi = 0;
+    if (["full", "accent", "half"].indexOf(p[2]) > -1) S.mode = p[2];
+    var n = function (x, lo, hi, d) { x = parseFloat(x); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; };
+    S.W = n(p[3], 1, 8, S.W); S.H = n(p[4], 2, 3.6, S.H); S.fw = n(p[5], 1, 5, S.fw); S.fd = n(p[6], 1, 6, S.fd);
+    Array.prototype.forEach.call(document.querySelectorAll("#modes .chip"), function (x) { var on = x.getAttribute("data-m") === S.mode; x.classList.toggle("on", on); x.setAttribute("aria-checked", on ? "true" : "false"); });
+    selectSim(it.id, vi, false); setTimeout(function () { $("#simulador").scrollIntoView(); }, 300);
+  })();
+
   window.__pvc = { S: S, selectSim: selectSim };
 })();
