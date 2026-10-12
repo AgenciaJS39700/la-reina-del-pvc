@@ -294,28 +294,20 @@ $("#v3d").addEventListener("click", function () { var fl = !!line().sim.floor; S
   room.style.setProperty("--yaw", S.yaw); room.style.setProperty("--pitch", S.pitch);
   selectSim(S.id, 0, false);
 
-  /* ------------------------------------------------------------ reel (teléfono del hero) */
+  /* ------------------------------------------------------------ reel (vídeo en el teléfono del hero) */
   (function () {
-    var REEL = [{"img": "img/reel-0.webp", "t": "Papel adhesivo mármol", "s": "Desde $66.000 / rollo", "id": "papel-adhesivo"}, {"img": "img/reel-1.webp", "t": "Lámina WPC", "s": "$25.000 / lámina", "id": "wpc"}, {"img": "img/reel-2.webp", "t": "Panel PU estilo piedra", "s": "$90.000 / unidad", "id": "panel-pu"}, {"img": "img/reel-3.webp", "t": "Panel 3D adhesivo", "s": "$15.000 / unidad", "id": "panel-3d"}, {"img": "img/reel-4.webp", "t": "Rollo texturizado", "s": "$80.000 / rollo", "id": "rollo-textura"}, {"img": "img/reel-5.webp", "t": "Lámina UV marmolizada", "s": "$120.000 / lámina", "id": "uv-marmol"}, {"img": "img/reel-6.webp", "t": "Mosaico adhesivo", "s": "$13.000 / unidad", "id": "mosaico"}], DUR = 3200, cur = 0, timer = 0, paused = REDUCED, vis = true;
-    var ph = $("#reel"), slides = $("#reelSlides"), bars = $("#reelBars"), capT = $("#reelT"), capS = $("#reelS"), cap = ph.querySelector(".cap"), pbtn = $("#reelPause");
-    var imgs = REEL.map(function (r, i) { var im = new Image(); im.alt = r.t; im.decoding = "async"; if (i === 0) im.fetchPriority = "high"; im.loading = i < 2 ? "eager" : "lazy"; im.src = r.img; slides.appendChild(im); bars.appendChild(el("i")); bars.lastChild.appendChild(el("b")); return im; });
-    cap.setAttribute("role", "button"); cap.tabIndex = 0; cap.style.cursor = "pointer";
-    function show(i) {
-      cur = (i + REEL.length) % REEL.length; clearTimeout(timer);
-      imgs.forEach(function (im, k) { im.classList.toggle("on", k === cur); });
-      Array.prototype.forEach.call(bars.children, function (b, k) { b.className = k < cur ? "done" : (k === cur ? "cur" : ""); void b.offsetWidth; });
-      capT.textContent = REEL[cur].t; capS.textContent = REEL[cur].s; cap.setAttribute("aria-label", "Ver " + REEL[cur].t);
-      ph.classList.toggle("paused", paused); pbtn.textContent = paused ? "▶" : "❚❚"; pbtn.setAttribute("aria-label", paused ? "Reproducir" : "Pausar");
-      if (!paused && vis && !document.hidden) timer = setTimeout(function () { show(cur + 1); }, DUR);
+    var v = $("#reelV"), pb = $("#reelPause"), cap = $("#reelCap"), ph = $("#reel");
+    var userPaused = REDUCED, vis = false;
+    function sync() {
+      var go = vis && !userPaused && !document.hidden;
+      if (go) { var p = v.play(); if (p && p.catch) p.catch(function () { userPaused = true; sync(); }); } else v.pause();
+      pb.textContent = userPaused ? "▶" : "❚❚"; pb.setAttribute("aria-label", userPaused ? "Reproducir vídeo" : "Pausar vídeo");
     }
-    $("#reelNext").addEventListener("click", function () { show(cur + 1); });
-    $("#reelPrev").addEventListener("click", function () { show(cur - 1); });
-    pbtn.addEventListener("click", function () { paused = !paused; show(cur); });
-    function openCur() { var it = byId(REEL[cur].id); if (it) openViewer(it, 0); }
+    pb.addEventListener("click", function () { userPaused = !userPaused; if (!userPaused) v.preload = "auto"; sync(); });
+    function openCur() { var it = byId("panel-3d"); if (it) openViewer(it, 0); }
     cap.addEventListener("click", openCur); cap.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCur(); } });
-    if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { vis = es[0].isIntersecting; show(cur); }).observe(ph);
-    document.addEventListener("visibilitychange", function () { show(cur); });
-    ph.style.setProperty("--dur", DUR + "ms"); show(0);
+    if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { vis = es[0].isIntersecting; if (vis && !userPaused) v.preload = "auto"; sync(); }, { threshold: .25 }).observe(ph);
+    document.addEventListener("visibilitychange", sync);
   })();
 
   /* ------------------------------------------------------------ compartir simulación */
