@@ -4,3 +4,6 @@ wrangler.jsonc
 worker
 README.md
 .dev.vars
+migrations
+tests
+.gitignore

@@ -12,5 +12,21 @@
   "ratelimits": [
     { "name": "CHAT_RL", "namespace_id": "39701", "simple": { "limit": 12, "period": 60 } }
   ],
+  // Memoria del bot de WhatsApp: contactos, conversaciones y avisos a asesores.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "la-reina-del-pvc-bot",
+      "database_id": "02e459cc-f949-4f1c-8c39-bef33576e331",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Workers AI: transcripción de notas de voz (Whisper).
+  "ai": { "binding": "AI" },
+  // 01:00 UTC = 20:00 en Colombia: resumen diario y limpieza.
+  "triggers": { "crons": ["0 1 * * *"] },
+  // La configuración (número, asesores, horario…) vive en el panel de Cloudflare
+  // y no se borra al desplegar.
+  "keep_vars": true,
   "observability": { "enabled": true }
 }
