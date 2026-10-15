@@ -4,7 +4,8 @@
 // Opcionales:         ANTHROPIC_MODEL (por defecto claude-haiku-5-5), ANTHROPIC_BASE_URL (p. ej. AI Gateway)
 
 import { loadCatalog } from "./catalog.js";
-import { runAgent } from "./agent.js";
+import { runWebAgent } from "./agent.js";
+import { handleWebhook, handleAdmin, dailyJob } from "./whatsapp/bot.js";
 
 const MAX_BODY_BYTES = 20_000;
 const MAX_MESSAGES = 12;
@@ -77,7 +78,7 @@ async function handleChat(request, env, url) {
   const t0 = Date.now();
   try {
     const catalog = await loadCatalog(env, url.origin);
-    const out = await runAgent(/** @type {any} */ (env), catalog, history);
+    const out = await runWebAgent(/** @type {any} */ (env), catalog, history);
     // Log sin contenido de la conversación (privacidad): solo métricas.
     console.log(JSON.stringify({ evt: "chat_ok", ms: Date.now() - t0, turns: history.length, actions: out.actions.length, ...out.usage }));
     return json({ reply: out.reply, actions: out.actions });
@@ -88,12 +89,19 @@ async function handleChat(request, env, url) {
 }
 
 export default {
-  /** @param {Request} request @param {Env} env */
-  async fetch(request, env) {
+  /** @param {Request} request @param {Env} env @param {ExecutionContext} ctx */
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === "/api/whatsapp/webhook") return handleWebhook(request, /** @type {any} */ (env), ctx);
+    if (url.pathname === "/api/whatsapp/health" || url.pathname === "/api/whatsapp/stats") return handleAdmin(request, /** @type {any} */ (env));
     if (url.pathname === "/api/chat/health") return json({ enabled: Boolean(env.ANTHROPIC_API_KEY) });
     if (url.pathname === "/api/chat") return handleChat(request, env, url);
     if (url.pathname.startsWith("/api/")) return json({ error: "not_found" }, 404);
     return env.ASSETS.fetch(request);
+  },
+
+  /** Cron diario (20:00 en Colombia): resumen al dueño y limpieza de datos antiguos. @param {ScheduledController} _c @param {Env} env @param {ExecutionContext} ctx */
+  async scheduled(_c, env, ctx) {
+    ctx.waitUntil(dailyJob(/** @type {any} */ (env)));
   },
 };
