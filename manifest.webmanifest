@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "La Reina del PVC",
+  "short_name": "Reina PVC",
+  "description": "Catálogo de paneles, láminas WPC y UV, papel adhesivo y accesorios en Pereira. Simulador de pared y cotización por WhatsApp.",
+  "lang": "es-CO",
+  "dir": "ltr",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16130d",
+  "theme_color": "#16130d",
+  "categories": ["shopping", "lifestyle"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Catálogo", "short_name": "Catálogo", "url": "/?utm_source=pwa#catalogo", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Simulador de pared", "short_name": "Simulador", "url": "/?utm_source=pwa#simulador", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
